@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/controller/admincontroller.ts","./src/controller/usercontroller.ts","./src/lib/helper.ts","./src/lib/types.ts","./src/middleware/adminmiddleware.ts","./src/middleware/usermiddleware.ts","./src/model/usermodel.ts","./src/routes/adminroutes.ts","./src/routes/userroutes.ts"],"version":"5.7.3"}
