@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { Types } from "mongoose";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: string; role: string };
+      user?: { id: Types.ObjectId; role: string };
     }
   }
 }
@@ -29,7 +30,7 @@ export const AdminMiddleware = async (
 
     const decoded = jwt.verify(token, secretKey) as {
       role: string;
-      _id: string;
+      _id: Types.ObjectId;
     };
 
     if (decoded.role !== "admin") {

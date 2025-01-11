@@ -1,10 +1,15 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { Types } from "mongoose";
+import dotenv from "dotenv";
 
+dotenv.config(); // Load environment variables
+
+// Extend Express Request interface to include user
 declare global {
   namespace Express {
     interface Request {
-      user?: { id: string; role: string };
+      user?: { id: Types.ObjectId; role: string };
     }
   }
 }
@@ -27,9 +32,10 @@ export const UserMiddleware = async (
     const token = authHeader.split(" ")[1]; // Extract the token
     const secretKey = process.env.JWT_SECRET || "jwt_secret";
 
+    // Verify the token and decode its payload
     const decoded = jwt.verify(token, secretKey) as {
+      _id: Types.ObjectId;
       role: string;
-      _id: string;
     };
 
     if (decoded.role !== "user") {
@@ -39,13 +45,14 @@ export const UserMiddleware = async (
       return;
     }
 
-    req.user = { id: decoded._id, role: decoded.role };
+    req.user = { id: decoded._id, role: decoded.role }; // Attach user to the request
 
-    next();
+    next(); // Proceed to the next middleware or route handler
   } catch (error) {
+    console.error("JWT verification error:", error); // Log the error for debugging
     res.status(401).json({
       message: "Invalid or expired token",
-      error: `${error}`,
     });
+    return;
   }
 };

@@ -1,14 +1,14 @@
 import { STATUS_CODE } from "../lib/helper";
 import { User } from "../model/userModel";
+import { Post } from "../model/postModel";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-// const hash = bcrypt.hashSync('password', 10);
-// const isMatch = bcrypt.compareSync('password', hash);
+
 const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const findUser = await User.findOne({ email });
+    const findUser = await User.findOne({ email, role: "user" });
     if (!findUser) {
       res.status(STATUS_CODE.NOT_FOUND).send({ message: "no user found" });
       return;
@@ -32,7 +32,6 @@ const login = async (req: Request, res: Response): Promise<void> => {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
 };
-
 const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
@@ -58,5 +57,55 @@ const register = async (req: Request, res: Response): Promise<void> => {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
 };
+const createPost = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { title, description, image } = req.body;
+    const id = req.user?.id;
+    if (!id) {
+      res
+        .status(STATUS_CODE.NOT_AUTHORISED)
+        .send({ message: "you are not allowed" });
+      return;
+    }
+    const newPost = new Post({
+      creator: id,
+      title,
+      description,
+      image,
+    });
 
-export { login, register };
+    await newPost.save();
+
+    await User.findByIdAndUpdate(
+      id,
+      { $push: { posts: newPost._id } },
+      { new: true, useFindAndModify: false }
+    );
+
+    res.status(STATUS_CODE.CREATED).send({ message: "post created" });
+  } catch (error) {
+    res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
+  }
+};
+const deletePost = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { postId } = req.body;
+    const id = req.user?.id;
+    if (!postId) {
+      res.status(400).send({ msg: "Post ID is required" });
+      return;
+    }
+
+    if (!id) {
+      res.status(401).send({ msg: "Unauthorized: User not authenticated" });
+      return;
+    }
+    const findPost = await Post.findByIdAndDelete({ _id: postId, creator: id });
+    if (findPost) res.status(STATUS_CODE.OK).send({ msg: "post deleted" });
+    else res.status(STATUS_CODE.NOT_FOUND).send({ msg: "no post available" });
+  } catch (error) {
+    res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
+  }
+};
+
+export { login, register, createPost, deletePost };
