@@ -4,8 +4,24 @@ import desert from "../media/desert.jpg";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { theme } from "../store/theme";
+import { usePost } from "../helper/hooks";
+import swal from "sweetalert";
+import { Spinner } from "@nextui-org/react";
 
+interface postResponse {
+  message: string;
+  token?: string;
+}
+
+interface postBody {
+  email: string;
+  password: string;
+}
 const Auth = () => {
+  const { postData, response, loading, error } = usePost<
+    postResponse,
+    postBody
+  >();
   const navigation = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
@@ -18,7 +34,23 @@ const Auth = () => {
       "auth-password"
     ) as HTMLInputElement;
 
-    console.log("Login Details: " + `${email.value}, ${password.value} `);
+    // Sending POST Request via custom usePost
+    postData("https://api-rbac.onrender.com/api/v0/user/login", {
+      email: `${email.value}`,
+      password: `${password.value}`,
+    });
+
+    const token = response?.token;
+
+    if (error) {
+      swal("Error", `${error}`, "warning");
+    }
+    if (!token) {
+      swal("Error", "Invalid Credentials", "warning");
+    } else {
+      localStorage.setItem("token", token);
+      navigation("/app");
+    }
     email.value = "";
     password.value = "";
   };
@@ -31,8 +63,17 @@ const Auth = () => {
       "auth-password"
     ) as HTMLInputElement;
 
-    console.log("Register Details: " + `${email.value}, ${password.value} `);
-    // Add registration logic here
+    postData("https://api-rbac.onrender.com/api/v0/user/register", {
+      email: `${email.value}`,
+      password: `${password.value}`,
+    });
+
+    if (error) {
+      swal("Error", `${error}`, "warning");
+    } else {
+      swal("Registered", "Login with your credentials", "success");
+    }
+
     email.value = "";
     password.value = "";
   };
@@ -147,7 +188,8 @@ const Auth = () => {
                 className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
                 onClick={isLogin ? handleLogin : handleRegister}
               >
-                {isLogin ? "Sign in" : "Create account"}
+                {isLogin ? "Sign in" : "Create account"}{" "}
+                {loading && <Spinner />}
               </button>
             </form>
 
