@@ -7,18 +7,7 @@ import { theme } from "../store/theme";
 import axios from "axios";
 import swal from "sweetalert";
 import { Spinner } from "@nextui-org/react";
-// import { Alert } from "@nextui-org/alert";
-// import { Response } from "express";
 
-// interface postResponse extends Response {
-//   message: string;
-//   token?: string;
-// }
-
-// interface postBody {
-//   email: string;
-//   password: string;
-// }
 const Auth = () => {
   const navigation = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -62,6 +51,8 @@ const Auth = () => {
           throw new Error("Invalid or No Token");
         } else {
           localStorage.setItem("token", token);
+          localStorage.setItem("role", role);
+
           swal("logged", "Successfully logged", "success");
           navigation("/app");
         }

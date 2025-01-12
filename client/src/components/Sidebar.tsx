@@ -8,7 +8,7 @@ export default function Sidebar() {
   const menuOption = useRecoilValue(menu);
   const Theme = useRecoilValue(theme);
   const setMenuOption = useSetRecoilState(menu);
-  const Role = useRecoilValue(user);
+  // const Role = useRecoilValue(user);
   const setRole = useSetRecoilState(user);
   const spanStyles = "cursor-pointer hover:scale-[1.1]";
   const sidebarStyles =
@@ -37,41 +37,27 @@ export default function Sidebar() {
             className={`${spanStyles}`}
             onClick={() => (location.href = "/app")}
           >
-            Home
-          </span>
-          <span
-            className={`${spanStyles}`}
-            onClick={() => (location.href = "/app")}
-          >
             Feed
           </span>
           <span
             className={`${spanStyles}`}
-            onClick={() => (location.href = "/app/user/posts")}
+            onClick={() => (location.href = "/app/posts")}
           >
-            My Posts
+            Posts
           </span>
-          {Role === "admin" && (
-            <>
-              <span
-                className={`${spanStyles}`}
-                onClick={() => (location.href = "/app/admin/posts")}
-              >
-                Posts
-              </span>
-              <span
-                className={`${spanStyles}`}
-                onClick={() => (location.href = "/app/admin/users")}
-              >
-                Users
-              </span>
-            </>
-          )}
+          <span
+            className={`${spanStyles}`}
+            onClick={() => (location.href = "/app/users")}
+          >
+            Users
+          </span>
+
           <span
             className={`${spanStyles}`}
             onClick={() => {
-              setRole("null");
+              setRole("user");
               localStorage.removeItem("token");
+              localStorage.removeItem("role");
               location.href = "/";
             }}
           >

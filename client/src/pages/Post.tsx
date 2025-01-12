@@ -1,18 +1,25 @@
 import { useEffect, useState } from "react";
 import { GetAllPost, PostType } from "../helper/types";
-import apiClient from "../helper/apiClient";
 import PostCard from "../components/Card";
 import { useRecoilValue } from "recoil";
 import { user } from "../store/user";
+import axios from "axios";
 
 export default function Post() {
   const [data, setData] = useState<PostType[]>([]);
   const Role = useRecoilValue(user);
+  const token = localStorage.getItem("token");
+  if (!token) location.href = "/auth";
 
   const fetchData = async () => {
     try {
-      const response = await apiClient.get<GetAllPost>(
-        `https://api-rbac.onrender.com/api/v0/${Role}/post/all`
+      const response = await axios.get<GetAllPost>(
+        `https://api-rbac.onrender.com/api/v0/${Role}/post/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (response.status === 200) {
@@ -28,9 +35,11 @@ export default function Post() {
     fetchData();
   }, []);
   return (
-    <div>
+    <div className="flex flex-col gap-5">
       {data.map((item) => {
-        return <PostCard item={item} key={item._id} />;
+        if (item.status === "active")
+          return <PostCard item={item} key={item._id} />;
+        else return <PostCard item={item} key={item._id} restrict={true} />;
       })}
     </div>
   );

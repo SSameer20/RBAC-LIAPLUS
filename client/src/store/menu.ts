@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
 export const menu = atom({
-  key: "side-menu",
+  key: "menu",
   default: "close",
 });

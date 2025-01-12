@@ -23,9 +23,8 @@ export const MainApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/app" element={<App />}>
           <Route index element={<Feed />} />
-          <Route path="user/posts" element={<Post />} />
-          <Route path="admin/posts" element={<Post />} />
-          <Route path="admin/users" element={<User />} />
+          <Route path="posts" element={<Post />} />x
+          <Route path="users" element={<User />} />
         </Route>
         <Route path="/auth" element={<Auth />} />
       </Routes>

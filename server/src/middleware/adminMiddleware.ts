@@ -33,6 +33,9 @@ export const AdminMiddleware = async (
       _id: Types.ObjectId;
     };
 
+    // Debugging output for decoded token
+    console.log("Decoded token:", JSON.stringify(decoded, null, 2));
+
     if (decoded.role !== "admin") {
       res
         .status(403)
@@ -41,12 +44,11 @@ export const AdminMiddleware = async (
     }
 
     req.user = { id: decoded._id, role: decoded.role };
-
     next();
-  } catch (error) {
+  } catch (error: any) {
     res.status(401).json({
       message: "Invalid or expired token",
-      error: `${error}`,
+      error: error.message || "Unknown error",
     });
   }
 };

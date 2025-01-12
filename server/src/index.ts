@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { log } from "./lib/helper";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
