@@ -7,22 +7,22 @@ import { theme } from "../store/theme";
 import axios from "axios";
 import swal from "sweetalert";
 import { Spinner } from "@nextui-org/react";
-import { Alert } from "@nextui-org/alert";
-import { Response } from "express";
+// import { Alert } from "@nextui-org/alert";
+// import { Response } from "express";
 
-interface postResponse extends Response {
-  message: string;
-  token?: string;
-}
+// interface postResponse extends Response {
+//   message: string;
+//   token?: string;
+// }
 
-interface postBody {
-  email: string;
-  password: string;
-}
+// interface postBody {
+//   email: string;
+//   password: string;
+// }
 const Auth = () => {
   const navigation = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
   const Theme = useRecoilValue(theme);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -51,23 +51,25 @@ const Auth = () => {
       }
 
       // Make login request
-      const response: postResponse = await axios.post(
+      const response = await axios.post(
         `https://api-rbac.onrender.com/api/v0/${role}/login`,
         { email, password }
       );
+      let token;
+      if (response && response.data) {
+        token = response.data.token;
+        if (!token) {
+          throw new Error("Invalid or No Token");
+        } else {
+          localStorage.setItem("token", token);
+          swal("logged", "Successfully logged", "success");
+          navigation("/app");
+        }
+      }
 
-      // if (!token) {
-      //   throw new Error("Invalid or No Token");
-      // }
-
-      // Store token and navigate
-      localStorage.setItem("token", token);
-      navigation("/app");
-
-      // Clear form fields
       if (emailRef.current) emailRef.current.value = "";
       if (passwordRef.current) passwordRef.current.value = "";
-    } catch (error: any) {
+    } catch (error) {
       // Handle errors
       if (axios.isAxiosError(error) && error.response) {
         if (error.response.status >= 400 && error.response.status < 500) {
@@ -83,21 +85,53 @@ const Auth = () => {
     }
   };
 
-  const handleRegister = (e: FormEvent) => {
+  const handleRegister = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    const email = document.getElementById("auth-email") as HTMLInputElement;
-    const password = document.getElementById(
-      "auth-password"
-    ) as HTMLInputElement;
-    const role = document.getElementById("user-role") as HTMLSelectElement;
+    try {
+      setLoading(true);
+      const email = emailRef.current?.value.trim();
+      const password = passwordRef.current?.value.trim();
+      const role = roleRef.current?.value;
+      // Validate inputs
+      if (!email || !password || !role) {
+        swal(
+          "All fields are required",
+          "Please fill out all fields",
+          "warning"
+        );
+        return;
+      }
+      // Make login request
+      const response = await axios.post(
+        `https://api-rbac.onrender.com/api/v0/${role}/register`,
+        { email, password }
+      );
 
-    // postData("https://api-rbac.onrender.com/api/v0/user/register", {
-    //   email: `${email.value}`,
-    //   password: `${password.value}`,
-    // });
+      if (response && response.data) {
+        if (response.status !== 201) {
+          throw new Error("Invalid or No Token");
+        } else {
+          swal("registered", "Please login with credentials", "success");
+          navigation("/auth");
+        }
+      }
 
-    email.value = "";
-    password.value = "";
+      if (emailRef.current) emailRef.current.value = "";
+      if (passwordRef.current) passwordRef.current.value = "";
+    } catch (error) {
+      // Handle errors
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.status >= 400 && error.response.status < 500) {
+          swal(error.response.data.message, "Error in the request", "warning");
+        } else if (error.response.status >= 500) {
+          swal(error.response.data.message, "Server error", "error");
+        }
+      } else {
+        swal("No response from the server", "Network error", "error");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
