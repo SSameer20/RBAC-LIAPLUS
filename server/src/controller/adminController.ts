@@ -61,6 +61,40 @@ const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const getAllUsers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const findAllUsers = await User.find();
+    if (!findAllUsers) {
+      res
+        .status(STATUS_CODE.NOT_FOUND)
+        .send({ message: "admin already exists" });
+      return;
+    }
+    res
+      .status(STATUS_CODE.OK)
+      .send({ message: "users fetched", users: findAllUsers });
+  } catch (error) {
+    res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
+  }
+};
+
+const getAllPosts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const findAllPosts = await Post.find();
+    if (!findAllPosts) {
+      res
+        .status(STATUS_CODE.NOT_FOUND)
+        .send({ message: "admin already exists" });
+      return;
+    }
+    res
+      .status(STATUS_CODE.OK)
+      .send({ message: "users fetched", posts: findAllPosts });
+  } catch (error) {
+    res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
+  }
+};
+
 const postStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { postId, status } = req.body;
@@ -156,4 +190,13 @@ const userStatus = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { login, register, postStatus, deletePost, deleteUser, userStatus };
+export {
+  login,
+  register,
+  postStatus,
+  deletePost,
+  deleteUser,
+  userStatus,
+  getAllUsers,
+  getAllPosts,
+};

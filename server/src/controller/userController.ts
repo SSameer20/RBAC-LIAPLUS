@@ -111,4 +111,20 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { login, register, createPost, deletePost };
+const getAllPosts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const findAllPosts = await Post.find({ creator: userId });
+    if (!findAllPosts) {
+      res.status(STATUS_CODE.NOT_FOUND).send({ message: "No Post Available" });
+      return;
+    }
+    res
+      .status(STATUS_CODE.OK)
+      .send({ message: "posts fetched", posts: findAllPosts });
+  } catch (error) {
+    res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
+  }
+};
+
+export { login, register, createPost, deletePost, getAllPosts };
