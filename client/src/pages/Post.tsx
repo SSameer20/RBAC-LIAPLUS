@@ -1,22 +1,18 @@
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-} from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import apiClient from "../helper/apiClient";
 import { GetAllPost, PostType } from "../helper/types";
+import apiClient from "../helper/apiClient";
+import PostCard from "../components/Card";
+import { useRecoilValue } from "recoil";
+import { user } from "../store/user";
 
 export default function Post() {
   const [data, setData] = useState<PostType[]>([]);
+  const Role = useRecoilValue(user);
 
   const fetchData = async () => {
     try {
       const response = await apiClient.get<GetAllPost>(
-        "https://api-rbac.onrender.com/api/v0/user/post/all"
+        `https://api-rbac.onrender.com/api/v0/${Role}/post/all`
       );
 
       if (response.status === 200) {
@@ -31,27 +27,11 @@ export default function Post() {
   useEffect(() => {
     fetchData();
   }, []);
-
   return (
     <div>
-      <section>
-        <Table aria-label="Example static collection table">
-          <TableHeader>
-            <TableColumn>NAME</TableColumn>
-            <TableColumn>DESCRIPTION</TableColumn>
-            <TableColumn>STATUS</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {data.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{item.title}</TableCell>
-                <TableCell>{item.description || "No description"}</TableCell>
-                <TableCell>{item.status}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </section>
+      {data.map((item) => {
+        return <PostCard item={item} key={item._id} />;
+      })}
     </div>
   );
 }

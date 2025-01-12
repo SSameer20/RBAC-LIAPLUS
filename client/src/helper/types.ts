@@ -3,6 +3,8 @@ export interface PostType {
   creator: {
     _id: string;
     email: string;
+    role: "user" | "admin";
+    status: "active" | "restrict";
   };
   title: string;
   description?: string;
