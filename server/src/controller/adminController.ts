@@ -29,7 +29,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
 
     res
       .status(STATUS_CODE.OK)
-      .send({ msg: "admin logged successfully", token });
+      .send({ message: "admin logged successfully", token });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
@@ -55,7 +55,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     await newAdmin.save();
 
-    res.status(STATUS_CODE.CREATED).send({ msg: "admin created" });
+    res.status(STATUS_CODE.CREATED).send({ message: "admin created" });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
@@ -66,15 +66,13 @@ const postStatus = async (req: Request, res: Response): Promise<void> => {
     const { postId, status } = req.body;
 
     if (!postId) {
-      res.status(400).send({ msg: "Post ID is required" });
+      res.status(400).send({ message: "Post ID is required" });
       return;
     }
     if (!["active", "restrict"].includes(status)) {
-      res
-        .status(400)
-        .send({
-          message: "Invalid status. Allowed values are 'active' or 'restrict'.",
-        });
+      res.status(400).send({
+        message: "Invalid status. Allowed values are 'active' or 'restrict'.",
+      });
       return;
     }
 
@@ -87,11 +85,11 @@ const postStatus = async (req: Request, res: Response): Promise<void> => {
     if (restrictPost) {
       res
         .status(STATUS_CODE.OK)
-        .send({ msg: "Post restricted", post: restrictPost });
+        .send({ message: "Post restricted", post: restrictPost });
     } else {
       res
         .status(STATUS_CODE.NOT_FOUND)
-        .send({ msg: "No post available with the given ID" });
+        .send({ message: "No post available with the given ID" });
     }
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `Error: ${error}` });
@@ -102,12 +100,13 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
   try {
     const { postId } = req.body;
     if (!postId) {
-      res.status(400).send({ msg: "Post ID is required" });
+      res.status(400).send({ message: "Post ID is required" });
       return;
     }
     const findPost = await Post.findByIdAndDelete({ _id: postId });
-    if (findPost) res.status(STATUS_CODE.OK).send({ msg: "post deleted" });
-    else res.status(STATUS_CODE.NOT_FOUND).send({ msg: "no post available" });
+    if (findPost) res.status(STATUS_CODE.OK).send({ message: "post deleted" });
+    else
+      res.status(STATUS_CODE.NOT_FOUND).send({ message: "no post available" });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
@@ -117,12 +116,13 @@ const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = req.body;
     if (!userId) {
-      res.status(400).send({ msg: "User ID is required" });
+      res.status(400).send({ message: "User ID is required" });
       return;
     }
     const findUser = await User.findByIdAndDelete({ _id: userId });
-    if (findUser) res.status(STATUS_CODE.OK).send({ msg: "user deleted" });
-    else res.status(STATUS_CODE.NOT_FOUND).send({ msg: "no user available" });
+    if (findUser) res.status(STATUS_CODE.OK).send({ message: "user deleted" });
+    else
+      res.status(STATUS_CODE.NOT_FOUND).send({ message: "no user available" });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
@@ -132,7 +132,7 @@ const userStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, status } = req.body;
     if (!userId) {
-      res.status(400).send({ msg: "User ID is required" });
+      res.status(400).send({ message: "User ID is required" });
       return;
     }
 
@@ -148,8 +148,9 @@ const userStatus = async (req: Request, res: Response): Promise<void> => {
       { new: true }
     );
     if (findUser)
-      res.status(STATUS_CODE.OK).send({ msg: "user status changed" });
-    else res.status(STATUS_CODE.NOT_FOUND).send({ msg: "no user available" });
+      res.status(STATUS_CODE.OK).send({ message: "user status changed" });
+    else
+      res.status(STATUS_CODE.NOT_FOUND).send({ message: "no user available" });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }

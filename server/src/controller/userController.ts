@@ -27,7 +27,9 @@ const login = async (req: Request, res: Response): Promise<void> => {
       expiresIn: "12h",
     });
 
-    res.status(STATUS_CODE.OK).send({ msg: "user logged successfully", token });
+    res
+      .status(STATUS_CODE.OK)
+      .send({ message: "user logged successfully", token });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
@@ -52,7 +54,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     await newUser.save();
 
-    res.status(STATUS_CODE.CREATED).send({ msg: "user created" });
+    res.status(STATUS_CODE.CREATED).send({ message: "user created" });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
@@ -92,17 +94,18 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
     const { postId } = req.body;
     const id = req.user?.id;
     if (!postId) {
-      res.status(400).send({ msg: "Post ID is required" });
+      res.status(400).send({ message: "Post ID is required" });
       return;
     }
 
     if (!id) {
-      res.status(401).send({ msg: "Unauthorized: User not authenticated" });
+      res.status(401).send({ message: "Unauthorized: User not authenticated" });
       return;
     }
     const findPost = await Post.findByIdAndDelete({ _id: postId, creator: id });
-    if (findPost) res.status(STATUS_CODE.OK).send({ msg: "post deleted" });
-    else res.status(STATUS_CODE.NOT_FOUND).send({ msg: "no post available" });
+    if (findPost) res.status(STATUS_CODE.OK).send({ message: "post deleted" });
+    else
+      res.status(STATUS_CODE.NOT_FOUND).send({ message: "no post available" });
   } catch (error) {
     res.status(STATUS_CODE.SERVER_ERROR).send({ message: `${error}` });
   }
