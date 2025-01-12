@@ -1,6 +1,9 @@
 export interface PostType {
   _id: string;
-  creator: string;
+  creator: {
+    _id: string;
+    email: string;
+  };
   title: string;
   description?: string;
   createdAt: Date;

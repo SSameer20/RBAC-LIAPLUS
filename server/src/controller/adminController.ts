@@ -80,7 +80,10 @@ const getAllUsers = async (req: Request, res: Response): Promise<void> => {
 
 const getAllPosts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const findAllPosts = await Post.find();
+    const findAllPosts = await Post.find().populate(
+      "creator",
+      "email role status"
+    );
     if (!findAllPosts) {
       res
         .status(STATUS_CODE.NOT_FOUND)

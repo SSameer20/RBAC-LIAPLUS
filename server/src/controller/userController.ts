@@ -116,7 +116,7 @@ const getAllPosts = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
     const findAllPosts = await Post.find({ creator: userId }).populate(
       "creator",
-      "email"
+      "email role status"
     );
     if (!findAllPosts) {
       res.status(STATUS_CODE.NOT_FOUND).send({ message: "No Post Available" });
