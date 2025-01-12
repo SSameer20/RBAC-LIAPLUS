@@ -114,7 +114,10 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
 const getAllPosts = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
-    const findAllPosts = await Post.find({ creator: userId });
+    const findAllPosts = await Post.find({ creator: userId }).populate(
+      "creator",
+      "email"
+    );
     if (!findAllPosts) {
       res.status(STATUS_CODE.NOT_FOUND).send({ message: "No Post Available" });
       return;
