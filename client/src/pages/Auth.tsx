@@ -1,14 +1,16 @@
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef } from "react";
 import { Eye } from "lucide-react";
 import desert from "../media/desert.jpg";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { theme } from "../store/theme";
-import { usePost } from "../helper/hooks";
+import axios from "axios";
 import swal from "sweetalert";
 import { Spinner } from "@nextui-org/react";
+import { Alert } from "@nextui-org/alert";
+import { Response } from "express";
 
-interface postResponse {
+interface postResponse extends Response {
   message: string;
   token?: string;
 }
@@ -18,61 +20,81 @@ interface postBody {
   password: string;
 }
 const Auth = () => {
-  const { postData, response, loading, error } = usePost<
-    postResponse,
-    postBody
-  >();
   const navigation = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const Theme = useRecoilValue(theme);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const roleRef = useRef<HTMLSelectElement>(null);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    const email = document.getElementById("auth-email") as HTMLInputElement;
-    const password = document.getElementById(
-      "auth-password"
-    ) as HTMLInputElement;
 
-    // Sending POST Request via custom usePost
-    postData("https://api-rbac.onrender.com/api/v0/user/login", {
-      email: `${email.value}`,
-      password: `${password.value}`,
-    });
+    try {
+      setLoading(true);
 
-    const token = response?.token;
+      // Safely access input values
+      const email = emailRef.current?.value.trim();
+      const password = passwordRef.current?.value.trim();
+      const role = roleRef.current?.value;
 
-    if (error) {
-      swal("Error", `${error}`, "warning");
-    }
-    if (!token) {
-      swal("Error", "Invalid Credentials", "warning");
-    } else {
+      // Validate inputs
+      if (!email || !password || !role) {
+        swal(
+          "All fields are required",
+          "Please fill out all fields",
+          "warning"
+        );
+        return;
+      }
+
+      // Make login request
+      const response: postResponse = await axios.post(
+        `https://api-rbac.onrender.com/api/v0/${role}/login`,
+        { email, password }
+      );
+
+      // if (!token) {
+      //   throw new Error("Invalid or No Token");
+      // }
+
+      // Store token and navigate
       localStorage.setItem("token", token);
       navigation("/app");
+
+      // Clear form fields
+      if (emailRef.current) emailRef.current.value = "";
+      if (passwordRef.current) passwordRef.current.value = "";
+    } catch (error: any) {
+      // Handle errors
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.status >= 400 && error.response.status < 500) {
+          swal(error.response.data.message, "Error in the request", "warning");
+        } else if (error.response.status >= 500) {
+          swal(error.response.data.message, "Server error", "error");
+        }
+      } else {
+        swal("No response from the server", "Network error", "error");
+      }
+    } finally {
+      setLoading(false);
     }
-    email.value = "";
-    password.value = "";
   };
 
   const handleRegister = (e: FormEvent) => {
     e.preventDefault();
     const email = document.getElementById("auth-email") as HTMLInputElement;
-
     const password = document.getElementById(
       "auth-password"
     ) as HTMLInputElement;
+    const role = document.getElementById("user-role") as HTMLSelectElement;
 
-    postData("https://api-rbac.onrender.com/api/v0/user/register", {
-      email: `${email.value}`,
-      password: `${password.value}`,
-    });
-
-    if (error) {
-      swal("Error", `${error}`, "warning");
-    } else {
-      swal("Registered", "Login with your credentials", "success");
-    }
+    // postData("https://api-rbac.onrender.com/api/v0/user/register", {
+    //   email: `${email.value}`,
+    //   password: `${password.value}`,
+    // });
 
     email.value = "";
     password.value = "";
@@ -153,6 +175,7 @@ const Auth = () => {
 
             <form className="space-y-6">
               <input
+                ref={emailRef}
                 type="email"
                 placeholder="Email"
                 id="auth-email"
@@ -165,6 +188,7 @@ const Auth = () => {
 
               <div className="relative">
                 <input
+                  ref={passwordRef}
                   type={showPassword ? "text" : "password"}
                   id="auth-password"
                   placeholder="Enter your password"
@@ -183,6 +207,21 @@ const Auth = () => {
                 </button>
               </div>
 
+              <select
+                ref={roleRef}
+                name="role"
+                id="user-role"
+                className={`w-full px-4 py-3 rounded-lg ${
+                  Theme === "light"
+                    ? "border-1 border-[bg-gray-800] text-black placeholder-gray-400"
+                    : "bg-gray-800  text-white placeholder-gray-400"
+                }  focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                aria-placeholder="role"
+              >
+                <option value="user">USER</option>
+                <option value="admin">ADMIN</option>
+              </select>
+
               <button
                 type="submit"
                 className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
@@ -192,39 +231,6 @@ const Auth = () => {
                 {loading && <Spinner />}
               </button>
             </form>
-
-            {/* Social Login */}
-            {/* <div className="mt-8">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-700"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 text-gray-400 bg-gray-900">
-                    Or register with
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <button className="flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg text-gray-400 hover:border-gray-500 hover:text-white transition-colors">
-                  <img
-                    src="/api/placeholder/20/20"
-                    alt="Google logo"
-                    className="w-5 h-5 mr-2"
-                  />
-                  Google
-                </button>
-                <button className="flex items-center justify-center px-4 py-3 border border-gray-700 rounded-lg text-gray-400 hover:border-gray-500 hover:text-white transition-colors">
-                  <img
-                    src="/api/placeholder/20/20"
-                    alt="Apple logo"
-                    className="w-5 h-5 mr-2"
-                  />
-                  Apple
-                </button>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
