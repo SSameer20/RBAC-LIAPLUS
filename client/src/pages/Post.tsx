@@ -34,6 +34,13 @@ export default function Post() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  if (data.length === 0)
+    return (
+      <div className="flex flex-col justify-center items-center">
+        <span className="text-2xl">No Data</span>
+      </div>
+    );
   return (
     <div className="flex flex-col gap-5">
       {data.map((item) => {

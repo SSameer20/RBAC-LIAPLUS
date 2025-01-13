@@ -8,7 +8,7 @@ export default function Sidebar() {
   const menuOption = useRecoilValue(menu);
   const Theme = useRecoilValue(theme);
   const setMenuOption = useSetRecoilState(menu);
-  // const Role = useRecoilValue(user);
+  const Role = localStorage.getItem("role");
   const setRole = useSetRecoilState(user);
   const spanStyles = "cursor-pointer hover:scale-[1.1]";
   const sidebarStyles =
@@ -45,12 +45,14 @@ export default function Sidebar() {
           >
             Posts
           </span>
-          <span
-            className={`${spanStyles}`}
-            onClick={() => (location.href = "/app/users")}
-          >
-            Users
-          </span>
+          {Role === "admin" && (
+            <span
+              className={`${spanStyles}`}
+              onClick={() => (location.href = "/app/users")}
+            >
+              Users
+            </span>
+          )}
 
           <span
             className={`${spanStyles}`}

@@ -1,21 +1,22 @@
 import { Card, CardHeader, CardBody, Button } from "@nextui-org/react";
 import { PostType } from "../helper/types";
 import { User } from "@nextui-org/react";
-import { useRecoilValue } from "recoil";
-import { user } from "../store/user";
 import axios from "axios";
+import swal from "sweetalert";
 
 interface PostCardProps {
   item: PostType;
   restrict?: boolean;
+  onRefresh: () => void; // New prop to trigger a refresh
 }
 
-export default function PostCard({ item, restrict }: PostCardProps) {
-  const Role = useRecoilValue(user);
+export default function PostCard({ item, restrict, onRefresh }: PostCardProps) {
+  const Role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   if (!token) location.href = "/auth";
+
   const imageSrc =
-    Role === "user"
+    item.creator.role === "admin"
       ? "https://cdn-icons-png.flaticon.com/512/219/219988.png"
       : "https://images.freeimages.com/fic/images/icons/2526/bloggers/256/admin.png";
 
@@ -35,11 +36,43 @@ export default function PostCard({ item, restrict }: PostCardProps) {
       );
 
       if (response.status === 200) {
-        swal("status changed", `${item.creator.email} post changed`, "success");
+        swal("Status Changed", `${item.creator.email} post changed`, "success");
+        onRefresh(); // Trigger refresh after status change
       }
     } catch (error: any) {
       alert(
         `Error while changing status: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  };
+
+  const handlePostDelete = async (item: PostType) => {
+    try {
+      const response = await axios.delete(
+        "https://api-rbac.onrender.com/api/v0/admin/post/delete",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            postId: item._id,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        swal(
+          "Post Deleted",
+          `Deleted ${item.creator.email.split("@")[0]} posts`,
+          "success"
+        );
+        onRefresh(); // Trigger refresh after deletion
+      }
+    } catch (error: any) {
+      alert(
+        `Error while deleting post: ${
           error.response?.data?.message || error.message
         }`
       );
@@ -62,12 +95,14 @@ export default function PostCard({ item, restrict }: PostCardProps) {
         <h4 className="text-lg">{item.description}</h4>
         <span>{new Date(item.createdAt).toLocaleDateString()}</span>{" "}
         {restrict && <span className="text-red-500 ml-2">Restricted</span>}
-        {Role === "user" && (
+        {Role === "admin" && (
           <div className="w-[100%] flex flex-row gap-5 mt-2">
             <Button color="primary" onPress={() => handleStatusChange(item)}>
               Change Status
             </Button>
-            <Button color="danger">Delete</Button>
+            <Button color="danger" onPress={() => handlePostDelete(item)}>
+              Delete
+            </Button>
           </div>
         )}
       </CardBody>

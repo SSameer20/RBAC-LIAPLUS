@@ -2,11 +2,12 @@ import { useState, FormEvent, useRef } from "react";
 import { Eye } from "lucide-react";
 import desert from "../media/desert.jpg";
 import { useNavigate } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { theme } from "../store/theme";
 import axios from "axios";
 import swal from "sweetalert";
 import { Spinner } from "@nextui-org/react";
+import { user } from "../store/user";
 
 const Auth = () => {
   const navigation = useNavigate();
@@ -17,6 +18,7 @@ const Auth = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const roleRef = useRef<HTMLSelectElement>(null);
+  const setRole = useSetRecoilState(user);
 
   const handleLogin = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -52,7 +54,8 @@ const Auth = () => {
         } else {
           localStorage.setItem("token", token);
           localStorage.setItem("role", role);
-
+          if (role === "user") setRole("user");
+          else setRole("admin");
           swal("logged", "Successfully logged", "success");
           navigation("/app");
         }

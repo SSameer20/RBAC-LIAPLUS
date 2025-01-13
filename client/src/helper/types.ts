@@ -12,8 +12,24 @@ export interface PostType {
   status: "active" | "restrict";
   __v: number;
 }
+export interface UserType {
+  _id: string;
+  email?: string;
+  password?: string;
+  role?: string;
+  posts: [string];
+  createdAt: Date;
+  updatedAt: Date;
+  status: "active" | "restrict";
+  __v: number;
+}
 
 export interface GetAllPost {
   message: string;
   posts?: PostType[];
+}
+
+export interface GetAllUser {
+  message: string;
+  users?: UserType[];
 }
