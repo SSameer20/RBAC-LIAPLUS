@@ -10,13 +10,11 @@ import {
   Button,
 } from "@nextui-org/react";
 
-import { useRecoilValue } from "recoil";
-import { user } from "../store/user";
 import axios from "axios";
 
 export default function Post() {
   const [data, setData] = useState<UserType[]>([]);
-  const Role = useRecoilValue(user);
+  // const Role = useRecoilValue(user);
   const token = localStorage.getItem("token");
   if (!token) location.href = "/auth";
   const fetchData = async () => {

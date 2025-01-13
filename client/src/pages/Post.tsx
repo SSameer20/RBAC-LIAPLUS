@@ -31,6 +31,9 @@ export default function Post() {
     }
   };
 
+  const onRefresh = () => {
+    fetchData();
+  };
   useEffect(() => {
     fetchData();
   }, []);
@@ -45,8 +48,16 @@ export default function Post() {
     <div className="flex flex-col gap-5">
       {data.map((item) => {
         if (item.status === "active")
-          return <PostCard item={item} key={item._id} />;
-        else return <PostCard item={item} key={item._id} restrict={true} />;
+          return <PostCard item={item} key={item._id} onRefresh={onRefresh} />;
+        else
+          return (
+            <PostCard
+              item={item}
+              key={item._id}
+              restrict={true}
+              onRefresh={onRefresh}
+            />
+          );
       })}
     </div>
   );

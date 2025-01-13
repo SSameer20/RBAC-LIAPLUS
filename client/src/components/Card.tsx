@@ -37,7 +37,7 @@ export default function PostCard({ item, restrict, onRefresh }: PostCardProps) {
 
       if (response.status === 200) {
         swal("Status Changed", `${item.creator.email} post changed`, "success");
-        onRefresh(); // Trigger refresh after status change
+        onRefresh();
       }
     } catch (error: any) {
       alert(

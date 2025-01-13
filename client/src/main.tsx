@@ -5,12 +5,13 @@ import { RecoilRoot, useRecoilValue } from "recoil";
 import { theme } from "./store/theme.ts";
 import ThemeComponent from "./components/ThemeComponent.tsx";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Auth from "./pages/Auth.tsx";
-import App from "./App.tsx";
-import Home from "./pages/Home.tsx";
-import Post from "./pages/Post.tsx";
-import User from "./pages/User.tsx";
-import Feed from "./pages/Feed.tsx";
+import React, { Suspense } from "react";
+const Auth = React.lazy(() => import("./pages/Auth.tsx"));
+const App = React.lazy(() => import("./App.tsx"));
+const Home = React.lazy(() => import("./pages/Home.tsx"));
+const Post = React.lazy(() => import("./pages/Post.tsx"));
+const User = React.lazy(() => import("./pages/User.tsx"));
+const Feed = React.lazy(() => import("./pages/Feed.tsx"));
 
 export const MainApp = () => {
   const ThemeMode = useRecoilValue(theme);
@@ -19,15 +20,17 @@ export const MainApp = () => {
     <main
       className={`${ThemeMode} text-foreground bg-background h-screen w-full`}
     >
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/app" element={<App />}>
-          <Route index element={<Feed />} />
-          <Route path="posts" element={<Post />} />x
-          <Route path="users" element={<User />} />
-        </Route>
-        <Route path="/auth" element={<Auth />} />
-      </Routes>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/app" element={<App />}>
+            <Route index element={<Feed />} />
+            <Route path="posts" element={<Post />} />x
+            <Route path="users" element={<User />} />
+          </Route>
+          <Route path="/auth" element={<Auth />} />
+        </Routes>
+      </Suspense>
       <ThemeComponent className="absolute bottom-0 right-0 m-10" />
     </main>
   );
