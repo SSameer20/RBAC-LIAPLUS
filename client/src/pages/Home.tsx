@@ -1,4 +1,7 @@
 import React, { useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { theme } from "../store/theme";
+import lock from "../media/lock.png";
 
 type NavLinkProps = {
   href: string;
@@ -12,20 +15,22 @@ const NavLink: React.FC<NavLinkProps> = ({ href, children }) => (
 );
 
 export default function Home() {
+  const Theme = useRecoilValue(theme);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) location.href = "/app";
   }, []);
   return (
-    <div className="min-h-screen  flex flex-col justify-start items-center">
-      {/* Navigation */}
-      <nav className="max-w-7xl min-w-full  mx-auto px-4 py-6">
+    <div className="max-h-screen overflow-x-hidden overflow-y-auto scrollbar-hide">
+      <nav className="max-w-7xl min-w-full mx-auto px-4 py-6 ">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <span className="font-semibold text-xl text-blue-500">Liaplus</span>
+            <span className={`font-semibold text-xl text-blue-500`}>
+              Liaplus
+            </span>
           </div>
 
-          <div className="flex items-center space-x-8">
+          <div className="flex items-start space-x-8">
             <NavLink href="/app">App</NavLink>
             <NavLink href="/auth">Login</NavLink>
             <button
@@ -38,17 +43,33 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main className=" px-4 pt-20">
-        <div className="text-center mb-8">
-          <h1 className="text-6xl font-semibold text-gray-800 mb-6">
-            Role-Based Access Control (RBAC)
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Restricting access to resources based on the roles assigned to users
-          </p>
-        </div>
-      </main>
+      <div className="min-h-[80v] flex flex-col justify-center items-center">
+        {/* Navigation */}
+
+        {/* Hero Section */}
+        <main className="flex justify-center">
+          <div className="text-left h-[80vh]  flex flex-col justify-center items-start">
+            <h1
+              className={`text-4xl font-bold mb-6 ${
+                Theme === "light" ? `text-gray-600` : `text-gray-50`
+              }`}
+            >
+              Role-Based Access Control (RBAC)
+            </h1>
+            <p
+              className={`text-xl  max-w-xl ${
+                Theme === "light" ? `text-gray-600` : `text-gray-50`
+              }`}
+            >
+              We Provide you Safe and Reliable Role Based Access Controll System
+              for you and your team.
+            </p>
+          </div>
+          <div className=" h-[80vh]">
+            <img src={lock} alt="lock" className=" z-1" />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
