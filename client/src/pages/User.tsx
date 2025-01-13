@@ -9,7 +9,7 @@ import {
   TableCell,
   Button,
 } from "@nextui-org/react";
-
+import swal from "sweetalert";
 import axios from "axios";
 
 export default function Post() {

@@ -1,5 +1,6 @@
 import { Form, Input, Button } from "@nextui-org/react";
 import axios from "axios";
+import swal from "sweetalert";
 
 export default function CreatePost({ fetchData }: { fetchData: () => void }) {
   const token = localStorage.getItem("token");
